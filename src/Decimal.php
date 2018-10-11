@@ -1,5 +1,4 @@
 <?php
-declare(strict_types = 1);
 
 namespace Sibosend\BigNumbers;
 
@@ -17,6 +16,7 @@ use Sibosend\BigNumbers\Errors\InvalidArgumentTypeError;
  */
 class Decimal
 {
+    const ENABLE_EXP_NOTATION = false;
     const DEFAULT_SCALE = 16;
     const CLASSIC_DECIMAL_NUMBER_REGEXP = '/^([+\-]?)0*(([1-9][0-9]*|[0-9])(\.[0-9]+)?)$/';
     const EXP_NOTATION_NUMBER_REGEXP = '/^ (?P<sign> [+\-]?) 0*(?P<mantissa> [0-9](?P<decimals> \.[0-9]+)?) [eE] (?P<expSign> [+\-]?)(?P<exp> \d+)$/x';
@@ -83,6 +83,7 @@ class Decimal
     }
 
     /**
+     * @deprecated
      * @param  float $fltValue
      * @param  int $scale
      * @return Decimal
@@ -145,17 +146,16 @@ class Decimal
             $min_scale = isset($captures[4]) ? max(0, strlen($captures[4]) - 1) : 0;
 
         }
-            //disable cases in which a number’s string representation has exponential notation.
-//        elseif (preg_match(self::EXP_NOTATION_NUMBER_REGEXP, $strValue, $captures) === 1) {
-//            list($min_scale, $value) = self::fromExpNotationString(
-//                $scale,
-//                $captures['sign'],
-//                $captures['mantissa'],
-//                strlen($captures['mantissa']) - 1,
-//                $captures['expSign'],
-//                (int)$captures['exp']
-//            );
-//        }
+        elseif (self::ENABLE_EXP_NOTATION && preg_match(self::EXP_NOTATION_NUMBER_REGEXP, $strValue, $captures) === 1) {
+            list($min_scale, $value) = self::fromExpNotationString(
+                $scale,
+                $captures['sign'],
+                $captures['mantissa'],
+                strlen($captures['mantissa']) - 1,
+                $captures['expSign'],
+                (int)$captures['exp']
+            );
+        }
         else {
             throw new NaNInputError('strValue must be a number');
         }
@@ -582,7 +582,7 @@ class Decimal
      * @param  integer $scale
      * @return Decimal
      */
-    public function round(int $scale = 0)
+    public function round($scale = 0)
     {
         if ($scale >= $this->scale) {
             return $this;
@@ -609,7 +609,7 @@ class Decimal
         return $this->innerTruncate($scale);
     }
 
-    private function innerTruncate(int $scale = 0, bool $ceil = true)
+    private function innerTruncate($scale = 0, $ceil = true)
     {
         $rounded = bcadd($this->value, '0', $scale);
 
@@ -638,7 +638,7 @@ class Decimal
      * @param  integer $scale
      * @return Decimal
      */
-    public function floor(int $scale = 0)
+    public function floor($scale = 0)
     {
         if ($scale >= $this->scale) {
             return $this;
@@ -668,7 +668,7 @@ class Decimal
      * @param integer $scale
      * @return $this % $d
      */
-    public function mod($d, int $scale = null)
+    public function mod($d, $scale = null)
     {
         if (!($d instanceof Decimal)) {
             $d = Decimal::create($d);
@@ -684,7 +684,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal sin($this)
      */
-    public function sin(int $scale = null)
+    public function sin($scale = null)
     {
         // First normalise the number in the [0, 2PI] domain
         $x = $this->mod(DecimalConstants::PI()->mul(Decimal::fromString("2")));
@@ -711,7 +711,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal
      */
-    public function cosec(int $scale = null)
+    public function cosec($scale = null)
     {
         $sin = $this->sin($scale + 2);
         if ($sin->isZero()) {
@@ -730,7 +730,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal cos($this)
      */
-    public function cos(int $scale = null)
+    public function cos($scale = null)
     {
         // First normalise the number in the [0, 2PI] domain
         $x = $this->mod(DecimalConstants::PI()->mul(Decimal::fromString("2")));
@@ -757,7 +757,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal
      */
-    public function sec(int $scale = null)
+    public function sec($scale = null)
     {
         $cos = $this->cos($scale + 2);
         if ($cos->isZero()) {
@@ -775,7 +775,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal
      */
-    public function arcsin(int $scale = null)
+    public function arcsin($scale = null)
     {
         if ($this->comp(DecimalConstants::one(), $scale + 2) === 1 || $this->comp(DecimalConstants::negativeOne(), $scale + 2) === -1) {
             throw new \DomainException(
@@ -808,7 +808,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal
      */
-    public function arccos(int $scale = null)
+    public function arccos($scale = null)
     {
         if ($this->comp(DecimalConstants::one(), $scale + 2) === 1 || $this->comp(DecimalConstants::negativeOne(), $scale + 2) === -1) {
             throw new \DomainException(
@@ -845,7 +845,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal
      */
-    public function arctan(int $scale = null)
+    public function arctan($scale = null)
     {
         $piOverFour = DecimalConstants::pi()->div(Decimal::fromInteger(4), $scale + 2)->round($scale);
 
@@ -874,7 +874,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal
      */
-    public function arccot(int $scale = null)
+    public function arccot($scale = null)
     {
         $scale = ($scale === null) ? 32 : $scale;
 
@@ -906,7 +906,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal
      */
-    public function arcsec(int $scale = null)
+    public function arcsec($scale = null)
     {
         if ($this->comp(DecimalConstants::one(), $scale + 2) === -1 && $this->comp(DecimalConstants::negativeOne(), $scale + 2) === 1) {
             throw new \DomainException(
@@ -940,7 +940,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal
      */
-    public function arccsc(int $scale = null)
+    public function arccsc($scale = null)
     {
         if ($this->comp(DecimalConstants::one(), $scale + 2) === -1 && $this->comp(DecimalConstants::negativeOne(), $scale + 2) === 1) {
             throw new \DomainException(
@@ -970,7 +970,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal
      */
-    public function exp(int $scale = null)
+    public function exp($scale = null)
     {
         if ($this->isZero()) {
             return DecimalConstants::one();
@@ -995,7 +995,7 @@ class Decimal
      * @param $scale
      * @return Decimal
      */
-    private static function factorialSerie(Decimal $x, Decimal $firstTerm, callable $generalTerm, int $scale)
+    private static function factorialSerie(Decimal $x, Decimal $firstTerm, callable $generalTerm, $scale)
     {
         $approx = $firstTerm;
         $change = DecimalConstants::One();
@@ -1029,7 +1029,7 @@ class Decimal
      * @param $scale
      * @return Decimal
      */
-    private static function powerSerie(Decimal $x, Decimal $firstTerm, int $scale)
+    private static function powerSerie(Decimal $x, Decimal $firstTerm, $scale)
     {
         $approx = $firstTerm;
         $change = DecimalConstants::One();
@@ -1078,7 +1078,7 @@ class Decimal
      * @param $scale
      * @return Decimal
      */
-    private static function simplePowerSerie(Decimal $x, Decimal $firstTerm, int $scale)
+    private static function simplePowerSerie(Decimal $x, Decimal $firstTerm, $scale)
     {
         $approx = $firstTerm;
         $change = DecimalConstants::One();
@@ -1115,7 +1115,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal tan($this)
      */
-    public function tan(int $scale = null)
+    public function tan($scale = null)
     {
         $cos = $this->cos($scale + 2);
         if ($cos->isZero()) {
@@ -1134,7 +1134,7 @@ class Decimal
      * @param integer $scale
      * @return Decimal cotan($this)
      */
-    public function cotan(int $scale = null)
+    public function cotan($scale = null)
     {
         $sin = $this->sin($scale + 2);
         if ($sin->isZero()) {
@@ -1190,12 +1190,12 @@ class Decimal
      *
      */
     private static function fromExpNotationString(
-        int $scale = null,
-        string $sign,
-        string $mantissa,
-        int $nDecimals,
-        string $expSign,
-        int $expVal
+        $scale = null,
+        $sign,
+        $mantissa,
+        $nDecimals,
+        $expSign,
+        $expVal
     )
     {
         $mantissaScale = max($nDecimals, 0);
@@ -1227,7 +1227,7 @@ class Decimal
      * @param  int $scale
      * @return string
      */
-    private static function innerRound(string $value, int $scale = 0)
+    private static function innerRound($value, $scale = 0)
     {
         $rounded = bcadd($value, '0', $scale);
 
@@ -1251,7 +1251,7 @@ class Decimal
      * @param  int $out_scale Scale used by the return value (only positive numbers)
      * @return string
      */
-    private static function innerLog10(string $value, int $in_scale, int $out_scale)
+    private static function innerLog10($value, $in_scale, $out_scale)
     {
         $value_len = \strlen($value);
 
@@ -1299,10 +1299,10 @@ class Decimal
      * @return string
      */
     private static function innerPowWithLittleExponent(
-        string $base,
-        string $exponent,
-        int $exp_scale,
-        int $out_scale
+        $base,
+        $exponent,
+        $exp_scale,
+        $out_scale
     )
     {
         $inner_scale = (int)ceil($exp_scale * log(10) / log(2)) + 1;
@@ -1337,10 +1337,10 @@ class Decimal
      * @return array
      */
     private static function computeSquareIndex(
-        string $exponent_remaining,
-        int $actual_index,
-        int $exp_scale,
-        int $inner_scale
+        $exponent_remaining,
+        $actual_index,
+        $exp_scale,
+        $inner_scale
     )
     {
         $actual_rt = bcpow('0.5', (string)$actual_index, $exp_scale);
@@ -1363,7 +1363,7 @@ class Decimal
      * @param  integer $out_scale
      * @return string
      */
-    private static function compute2NRoot(string $base, int $index, int $out_scale)
+    private static function compute2NRoot($base, $index, $out_scale)
     {
         $result = $base;
 
@@ -1393,7 +1393,7 @@ class Decimal
     /**
      * @return string
      */
-    private static function normalizeSign(string $sign)
+    private static function normalizeSign($sign)
     {
         if ('+' === $sign) {
             return '';

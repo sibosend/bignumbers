@@ -13,7 +13,7 @@
 >
     <testsuites>
         <testsuite name="bignumbers/tests">
-            <directory suffix=".php">./tests/regression/</directory>
+            <directory suffix=".php">./tests/</directory>
         </testsuite>
     </testsuites>
     <filter>
