@@ -180,7 +180,7 @@ class Decimal
      * @param  null|int $scale
      * @return Decimal
      */
-    private static function fromDecimal(Decimal $decValue, int $scale = null)
+    private static function fromDecimal(Decimal $decValue, $scale = null)
     {
         self::paramsValidation($decValue, $scale);
 
@@ -201,7 +201,7 @@ class Decimal
      * @param  null|int $scale
      * @return Decimal
      */
-    public function add($b, int $scale = null)
+    public function add($b, $scale = null)
     {
         self::paramsValidation($b, $scale);
         if (!($b instanceof Decimal)) {
@@ -219,7 +219,7 @@ class Decimal
      * @param  integer $scale
      * @return Decimal
      */
-    public function sub($b, int $scale = null)
+    public function sub($b, $scale = null)
     {
         self::paramsValidation($b, $scale);
         if (!($b instanceof Decimal)) {
@@ -238,7 +238,7 @@ class Decimal
      * @param  integer $scale
      * @return Decimal
      */
-    public function mul($b, int $scale = null)
+    public function mul($b, $scale = null)
     {
         self::paramsValidation($b, $scale);
 
@@ -265,7 +265,7 @@ class Decimal
      * @param  integer $scale
      * @return Decimal
      */
-    public function div($b, int $scale = null)
+    public function div($b, $scale = null)
     {
         self::paramsValidation($b, $scale);
         if (!($b instanceof Decimal)) {
@@ -309,7 +309,7 @@ class Decimal
      * @param  integer $scale
      * @return Decimal
      */
-    public function sqrt(int $scale = null)
+    public function sqrt($scale = null)
     {
         if ($this->isNegative()) {
             throw new \DomainException(
@@ -334,7 +334,7 @@ class Decimal
      * @param  integer $scale
      * @return Decimal
      */
-    public function pow($b, int $scale = null)
+    public function pow($b, $scale = null)
     {
         self::paramsValidation($b, $scale);
         if (!($b instanceof Decimal)) {
@@ -399,7 +399,7 @@ class Decimal
      * @param  integer $scale
      * @return Decimal
      */
-    public function log10(int $scale = null)
+    public function log10($scale = null)
     {
         if ($this->isNegative()) {
             throw new \DomainException(
@@ -417,7 +417,7 @@ class Decimal
         );
     }
 
-    public function isZero(int $scale = null)
+    public function isZero($scale = null)
     {
         $cmp_scale = $scale !== null ? $scale : $this->scale;
 
@@ -445,7 +445,7 @@ class Decimal
      * @param integer $scale
      * @return boolean
      */
-    public function equals($b, int $scale = null)
+    public function equals($b, $scale = null)
     {
         self::paramsValidation($b, $scale);
         if (!($b instanceof Decimal)) {
@@ -474,7 +474,7 @@ class Decimal
      * @param  integer $scale
      * @return integer
      */
-    public function comp($b, int $scale = null)
+    public function comp($b, $scale = null)
     {
         self::paramsValidation($b, $scale);
         if (!($b instanceof Decimal)) {
@@ -502,7 +502,7 @@ class Decimal
      * @param  integer $scale
      * @return bool
      */
-    public function isGreaterThan($b, int $scale = null)
+    public function isGreaterThan($b, $scale = null)
     {
         if (!($b instanceof Decimal)) {
             $b = Decimal::create($b);
@@ -517,7 +517,7 @@ class Decimal
      * @param  integer $scale
      * @return bool
      */
-    public function isGreaterOrEqualTo($b, int $scale = null)
+    public function isGreaterOrEqualTo($b, $scale = null)
     {
         if (!($b instanceof Decimal)) {
             $b = Decimal::create($b);
@@ -534,7 +534,7 @@ class Decimal
      * @param  integer $scale
      * @return bool
      */
-    public function isLessThan($b, int $scale = null)
+    public function isLessThan($b, $scale = null)
     {
         if (!($b instanceof Decimal)) {
             $b = Decimal::create($b);
@@ -549,7 +549,7 @@ class Decimal
      * @param  integer $scale
      * @return bool
      */
-    public function isLessOrEqualTo($b, int $scale = null)
+    public function isLessOrEqualTo($b, $scale = null)
     {
         if (!($b instanceof Decimal)) {
             $b = Decimal::create($b);
